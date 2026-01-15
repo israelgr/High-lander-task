@@ -4,7 +4,9 @@
   "private": true,
   "description": "Web-based interactive navigation game",
   "workspaces": [
-    "packages/*"
+    "client",
+    "server",
+    "shared"
   ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
