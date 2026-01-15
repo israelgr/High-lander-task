@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../contexts/GameContext';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -48,12 +48,25 @@ export function LobbyPage() {
     }
   }, [game?.status, navigate]);
 
-  // Reset creating state when game is created
+  // Track the previous game ID to only reset isCreating when a new game is created
+  const previousGameIdRef = useRef<string | null>(null);
+  
+  // Reset creating state only when a new game is first created (game ID changes)
   useEffect(() => {
-    if (game) {
+    const currentGameId = game?.id ?? null;
+    const previousGameId = previousGameIdRef.current;
+    
+    // Only reset if:
+    // 1. We have a game ID now
+    // 2. The game ID changed (different from previous)
+    // 3. We're currently in creating state
+    if (currentGameId !== null && currentGameId !== previousGameId && isCreating) {
       setIsCreating(false);
     }
-  }, [game]);
+    
+    // Update the ref to track the current game ID
+    previousGameIdRef.current = currentGameId;
+  }, [game?.id, isCreating]);
 
   const handleCreateGame = (config: Parameters<typeof createGame>[0]) => {
     setIsCreating(true);
