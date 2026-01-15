@@ -4,9 +4,10 @@ import { GameConfig, DEFAULT_GAME_CONFIG } from '@high-lander/shared';
 interface CreateGameFormProps {
   onSubmit: (config: Partial<GameConfig>) => void;
   disabled?: boolean;
+  loading?: boolean;
 }
 
-export function CreateGameForm({ onSubmit, disabled }: CreateGameFormProps) {
+export function CreateGameForm({ onSubmit, disabled, loading }: CreateGameFormProps) {
   const [config, setConfig] = useState<Partial<GameConfig>>({
     maxPlayers: DEFAULT_GAME_CONFIG.maxPlayers,
     goalRadiusMin: DEFAULT_GAME_CONFIG.goalRadiusMin,
@@ -62,8 +63,16 @@ export function CreateGameForm({ onSubmit, disabled }: CreateGameFormProps) {
         </div>
       </div>
 
-      <button type="submit" style={styles.button} disabled={disabled}>
-        Create Game
+      <button
+        type="submit"
+        style={{
+          ...styles.button,
+          opacity: disabled || loading ? 0.7 : 1,
+          cursor: disabled || loading ? 'not-allowed' : 'pointer',
+        }}
+        disabled={disabled || loading}
+      >
+        {loading ? 'Creating...' : 'Create Game'}
       </button>
     </form>
   );
