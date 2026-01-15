@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip:*)",
+      "WebSearch",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(git -C /Users/israelgranot/Desktop/Personal/Workspace/High-lander-task status:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

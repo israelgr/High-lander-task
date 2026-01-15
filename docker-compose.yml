@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: docker/client/Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+      - VITE_SOCKET_URL=http://localhost:3001
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/navigation-game
+      - REDIS_URL=redis://redis:6379
+      - OSRM_URL=http://osrm:5000
+      - CORS_ORIGIN=http://localhost:3000
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  osrm:
+    image: osrm/osrm-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - osrm_data:/data
+    command: osrm-routed --algorithm mld /data/israel-and-palestine-latest.osrm
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:
+  osrm_data:
