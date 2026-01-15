@@ -8,6 +8,7 @@ type Tab = 'create' | 'join';
 
 export function LobbyPage() {
   const [activeTab, setActiveTab] = useState<Tab>('create');
+  const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -46,6 +47,18 @@ export function LobbyPage() {
       navigate('/game');
     }
   }, [game?.status, navigate]);
+
+  // Reset creating state when game is created
+  useEffect(() => {
+    if (game) {
+      setIsCreating(false);
+    }
+  }, [game]);
+
+  const handleCreateGame = (config: Parameters<typeof createGame>[0]) => {
+    setIsCreating(true);
+    createGame(config);
+  };
 
   if (!username) {
     return null;
@@ -104,7 +117,7 @@ export function LobbyPage() {
 
         <div style={styles.tabContent}>
           {activeTab === 'create' ? (
-            <CreateGameForm onSubmit={createGame} disabled={!position} />
+            <CreateGameForm onSubmit={handleCreateGame} disabled={!position} loading={isCreating} />
           ) : (
             <JoinGameForm onSubmit={joinGame} onRejoin={rejoinGame} disabled={!position} />
           )}
